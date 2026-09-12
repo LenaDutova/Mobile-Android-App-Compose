@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name" translatable="false">Vedroid Compose</string>
+
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+
+    <string name="btn_next">Next</string>
+    <string name="btn_introduce_yourself">Introduce yourself</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_log_out">Log out</string>
+
+    <string name="fab_settings">Account settings</string>
+    <string name="btn_close">Close</string>
+
+    <string name="et_enter_name">Enter name…</string>
+
+    <string name="toggle_sex_man">Man</string>
+    <string name="toggle_sex_not_defined">Not defined</string>
+    <string name="toggle_sex_woman">Woman</string>
+
+    <string name="toggle_mode_dark">Dark</string>
+    <string name="toggle_mode_system">System</string>
+    <string name="toggle_mode_light">Light</string>
+
+    <string name="checkbox_language_ru">Always Russian language</string>
+
+    <string name="warning_text_no_data">No data</string>
+    <string name="warning_text_no_internet">No internet connection</string>
+
+    <string name="text_greeting_anonymous">Welcome, Anonymous!</string>
+    <string name="text_greeting">Welcome,</string>
+    <string name="text_mr">Mr.</string>
+    <string name="text_mrs">Mrs.</string>
+
+    <string name="text_please">Please</string>
+    <string name="text_no_name">, enter name</string>
+    <string name="text_no_gender">, choose gender</string>
+    <string name="title_activity_main">MainActivity</string>
+</resources>

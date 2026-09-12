@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lorem_ipsum">Мы, многонациональный народ Российской Федерации, соединенные общей судьбой на своей земле. Утверждая права и свободы человека, гражданский мир и согласие, сохраняя исторически сложившееся государственное единство. Исходя из общепризнанных принципов равноправия и самоопределения народов, чтя память предков, передавших нам любовь и уважение к Отечеству, веру в добро и справедливость. Возрождая суверенную государственность России и утверждая незыблемость ее демократической основы, стремясь обеспечить благополучие и процветание России. Исходя из ответственности за свою Родину перед нынешним и будущими поколениями, сознавая себя частью мирового сообщества, принимаем КОНСТИТУЦИЮ РОССИЙСКОЙ ФЕДЕРАЦИИ.</string>
+
+    <string name="btn_next">Далее</string>
+    <string name="btn_introduce_yourself">Представиться</string>
+    <string name="btn_register">Зарегистрироваться</string>
+    <string name="btn_log_out">Выйти</string>
+
+    <string name="fab_settings">Пользовательские настройки</string>
+    <string name="btn_close">Закрыть</string>
+
+    <string name="et_enter_name">Введите имя…</string>
+
+    <string name="checkbox_language_ru">Использовать Русский язык</string>
+
+    <string name="toggle_sex_man">Мужчина</string>
+    <string name="toggle_sex_not_defined">Не определено</string>
+    <string name="toggle_sex_woman">Женщина</string>
+
+    <string name="toggle_mode_dark">Темный</string>
+    <string name="toggle_mode_system">Системный</string>
+    <string name="toggle_mode_light">Светлый</string>
+
+    <string name="warning_text_no_data">Нет данных</string>
+    <string name="warning_text_no_internet">Подключение к интернету отсутствует</string>
+
+    <string name="text_greeting_anonymous">"Добро пожаловать, Пользователь!"</string>
+    <string name="text_greeting">"Добро пожаловать,"</string>
+    <string name="text_mr">"Уважаемый"</string>
+    <string name="text_mrs">"Уважаемая"</string>
+
+    <string name="text_please">Пожалуйста</string>
+    <string name="text_no_name">, укажите имя</string>
+    <string name="text_no_gender">, выберите пол</string>
+</resources>
