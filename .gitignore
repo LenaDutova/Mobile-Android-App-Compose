@@ -19,3 +19,5 @@
 local.properties
 
 /app/src/main/java/com/mobile/vedroid/compose/ui/compose/_ComposeTests.kt
+/app/src/androidTest/java/com/mobile/vedroid/compose/
+/app/src/test/java/com/mobile/vedroid/compose/
