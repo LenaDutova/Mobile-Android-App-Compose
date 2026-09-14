@@ -38,7 +38,7 @@ import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 private fun PreviewItemJoke (){
     MobileAndroidAppComposeTheme (dynamicColor = false) {
         ItemJoke()
-//        ItemJoke(true, "Как пропатчить KDE по FreBSD?")
+//        ItemJoke(true, "Как пропатчить KDE под FreBSD?")
 //        ItemJoke(false,"Почему ваши дети всё время ссорятся?", "Конфликт версий")
     }
 }
