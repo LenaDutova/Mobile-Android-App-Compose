@@ -35,4 +35,5 @@
     <string name="text_no_name">, enter name</string>
     <string name="text_no_gender">, choose gender</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_single">SingleActivity</string>
 </resources>

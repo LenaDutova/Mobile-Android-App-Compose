@@ -1,25 +1,16 @@
-package com.mobile.vedroid.compose
+package com.mobile.vedroid.compose.ui.compose
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.twotone.LightMode
@@ -48,50 +39,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
-
-class SettingsActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // https://metanit.com/kotlin/jetpack/2.14.php
-        setContent {
-            MobileAndroidAppComposeTheme {
-                val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                Column( Modifier.fillMaxSize().padding(bottom = bottomPadding, top = topPadding) ) {
-                    FragmentSettings(
-                        logOutClick = {
-                            // TODO // LogOut & Return to Start
-                            finish()
-                        },
-                        closeClick = { finish() }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    name = "Light"
-)
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark"
-)
-@Composable
-private fun PreviewFragmentSettings(){
-    MobileAndroidAppComposeTheme (dynamicColor = false) {
-        FragmentSettings()
-    }
-}
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-private fun FragmentSettings(
+public fun FragmentSettings(
     logOutClick:() -> Unit = { Log.d("FragmentSettings", "click to log out and start screen") },
     closeClick:() -> Unit = { Log.d("FragmentSettings", "click to start screen") }
 ){
@@ -208,5 +161,22 @@ private fun FragmentSettings(
             }
 
         }
+    }
+}
+
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    name = "Light"
+)
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark"
+)
+@Composable
+private fun PreviewFragmentSettings(){
+    MobileAndroidAppComposeTheme (dynamicColor = false) {
+        FragmentSettings()
     }
 }

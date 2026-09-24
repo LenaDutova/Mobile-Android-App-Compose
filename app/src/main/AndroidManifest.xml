@@ -13,25 +13,15 @@
         android:theme="@style/Theme.MobileAndroidAppCompose">
 
         <activity
-            android:name=".StartActivity"
+            android:name=".SingleActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".FinalActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ReturningActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false" />
 
     </application>
 

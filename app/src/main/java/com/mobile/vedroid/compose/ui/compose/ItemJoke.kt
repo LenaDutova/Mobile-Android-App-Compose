@@ -2,7 +2,6 @@ package com.mobile.vedroid.compose.ui.compose
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,25 +22,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
-
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    name = "Light"
-)
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark"
-)
-@Composable
-private fun PreviewItemJoke (){
-    MobileAndroidAppComposeTheme (dynamicColor = false) {
-        ItemJoke()
-//        ItemJoke(true, "Как пропатчить KDE под FreBSD?")
-//        ItemJoke(false,"Почему ваши дети всё время ссорятся?", "Конфликт версий")
-    }
-}
 
 @Composable
 fun ItemJoke (isSingle: Boolean = true,
@@ -106,5 +86,24 @@ fun ItemJoke (isSingle: Boolean = true,
             )
 
         }
+    }
+}
+
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    name = "Light"
+)
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark"
+)
+@Composable
+private fun PreviewItemJoke (){
+    MobileAndroidAppComposeTheme (dynamicColor = false) {
+        ItemJoke()
+//        ItemJoke(true, "Как пропатчить KDE под FreBSD?")
+//        ItemJoke(false,"Почему ваши дети всё время ссорятся?", "Конфликт версий")
     }
 }

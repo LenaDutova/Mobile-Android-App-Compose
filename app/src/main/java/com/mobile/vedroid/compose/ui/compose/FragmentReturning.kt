@@ -1,21 +1,11 @@
-package com.mobile.vedroid.compose
+package com.mobile.vedroid.compose.ui.compose
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.res.Configuration
-import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -41,57 +31,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 import kotlinx.coroutines.launch
 
-class ReturningActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // https://metanit.com/kotlin/jetpack/2.14.php
-        setContent {
-            val context = LocalContext.current
-
-            MobileAndroidAppComposeTheme {
-                val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                val bottomPadding =
-                    WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                Column(
-                    Modifier.fillMaxSize().padding(bottom = bottomPadding, top = topPadding)
-                ) {
-                    FragmentReturning(returningInClick = { name, sex ->
-                        val intent = Intent()
-                        intent.putExtra(StartActivity.LOGIN, name)
-                        intent.putExtra(StartActivity.GENDER, sex)
-                        setResult(RESULT_OK, intent)
-                        finish()
-                    })
-                }
-            }
-        }
-    }
-}
-
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    name = "Light"
-)
-@Preview(
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark"
-)
-@Composable
-private fun PreviewFragmentReturning(){
-    MobileAndroidAppComposeTheme (dynamicColor = false) {
-        FragmentReturning()
-    }
-}
-
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun FragmentReturning(
-    returningInClick: (String, Boolean) -> Unit = { name, sex -> Log.d("TAG_FragmentStart", "click to returning screen")}
+public fun FragmentReturning(
+    returningInClick: (String, Boolean) -> Unit = { name, sex -> Log.d("TAG_FragmentStart", "click from returning screen")}
 ){
     val context = LocalContext.current
     val options = listOf(
@@ -191,5 +138,22 @@ fun FragmentReturning(
                 Text(stringResource(R.string.btn_register))
             }
         }
+    }
+}
+
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    name = "Light"
+)
+@Preview(
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark"
+)
+@Composable
+private fun PreviewFragmentReturning(){
+    MobileAndroidAppComposeTheme (dynamicColor = false) {
+        FragmentReturning()
     }
 }
