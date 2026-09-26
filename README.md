@@ -1,83 +1,91 @@
-# Реализация на основе языка Kotlin четырех-оконного приложения 
+# Реализация многоэкранного приложения (c Navigation Component)
 - для входа, регистрации отображения данных пользователю и настройки интерфейса
 
-## Деятельности (Activity)
-Каждая деятельность (StartActivity, ReturningActivity, FinalActivity) прописана в файле AndroidManifest.xml. Одна из них определена как стартовая (загрузочная):
+## Подключение зависимостей
+В build.gradle.kts уровня Модуля требуется добавить зависимость для подключения Navigation Component актуальной версии и плагина для типобезопасных аргументов организуемых маршрутов-переходов:
 ```
-<intent-filter>
-    <action android:name="android.intent.action.MAIN" />
-    <category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
+plugins {
+    kotlin("plugin.serialization") version "2.0.21" // navigation
+}
+
+dependencies {
+    implementation("androidx.navigation:navigation-compose:2.10.2")
+}
 ```
 
 ## Жизненный цикл и логировании
-В режиме просмотра @Composable-компонентов макета нажатия на кнопки пораждает вывод сообщений в Logcat. Например для логирования в канал отладки (debug) необходимо добавить некоторый тэг и само сообщение: 
+Для отображения текущего состония жизненного цикла в канал отладки (debug) можно подписаться на реализацию слушателя событий DefaultLifecycleObserver текущего компонента:  
 ```
-Log.d("TAG", "FragmentStart: click to settings screen")
+val lifecycleOwner = LocalLifecycleOwner.current
+val observer = LifecycleEventObserver { source, event ->
+        when (event) {
+            Lifecycle.Event.ON_PAUSE -> {
+                Log.d("TAG", "Screen: ON_PAUSE")
+            }
+        Lifecycle.Event.ON_ANY -> printCallback("Undefined")
+    }
+}
+// Добавляем наблюдателя к жизненному циклу
+lifecycleOwner.lifecycle.addObserver(observer)
 ```
-
-## Верстка макета
-Верстка экранов реализована с использованием Jetpack Compose. @Composable функции могут требовать параметры, по этой причины для их просмотра в @Preview передаются "условные" значения.
-
-Добавлены константы для цветов, шрифтов и темы (См. ui/theme), а также строк (См. res/values/strings). Строковые ресурсы содержат две локализации (RU, EN по умолчанию). Измените язык операционной системы на устройстве или эмуляторе для просмотра отличий.
-
-Добавлено изображение для логотипа приложения, отражающее фреймоврк для верстки макета
-
-В Jetpak Compose определено значительное количество визуальных компонентов, каждый из которых обладает своим набором атрибутов, а также возможностью его изменения:
+При этом от данного слушателя необходимо отписаться (удалить).
+Или использовать отдельные слушатели событий (LifecycleStartEffect, LifecycleResumeEffect и т.д): 
 ```
-@Composable 
-fun Greeting (msg: String = "Hello"){
-    Text(
-        msg,
-        fontSize = 28.sp,
-        modifier = Modifier.background(Color.Red)
-    )
+LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+    Log.d("TAG", "Screen: ON_PAUSE")
 }
 ```
-Модификаторы можно по цепочке достраивать к предшествующим (при этом предыдущий не затирается, а выполняется над результатом предыдущих команд):
-```
-Modifier.background(Color.Red)
-    .padding(30.dp)
-    .background(Color.Green)
-    .padding(30.dp)
-    .background(Color.Blue)
-```
-Для того, чтобы изменить какие-либо значения (числа, текст), отображаемые компонентом потребуется повторный вызов функции этого компонента. Для упрощения этого процесса в Jetpak введена концепция состояния (state), изменение которого повлекет рекомпозицию конкретного копонента (не затрагивая вложенные компоненты, которые от этого состояния не зависят).
 
-Для того чтобы переменная стала выполнять роль состоянием компонента, необходимо вызвать метод mutableStateOf() и передать значение по умолчанию. Если требуется сохранение состояния даже в случае пересоздания деятельности, то состояние необходимо обернуть функцией rememberSaveable():
-```
-var name by rememberSaveable { mutableStateOf("") }
-```
+## Описание маршрутов (переходов)
+Для построения навигационного графа требуется описать маршруты переходов между экранами (@Composable-функциями). 
 
-## Взаимодействие
-Для большинства @Composable компонентов можно задать действие при нажатии, определив атрибут onClick:
+В качестве параметров, описывающих маршрут могут выступать строки, которые можно объединить в перечисление (или объект-компаньон):
 ```
-Button (onClick = {
-    // do something
-})
+companion object ActivityRoutes {
+    const val A_ROUTE = "screen_a"
+    const val B_ROUTE = "screen_b"
+}
 ```
-Но и для компонентов, у которых "под капотом" нет атритутов-слушателей, можно навесить внешнее наблюдение, благодаря модификатору clickable:
+В этом случае аргументы для перехода передаются как часть адреса этого перехода (синтаксис схож с форматом построения URL-адресов):
 ```
-Text(
-    text = "message",
-    modifier = Modifier.clickable( onClick = { /*do something*/ })
-)
+NavHost(rememberNavController(), startDestination = ActivityRoutes.A_ROUTE){
+    composable (ActivityRoutes.A_ROUTE) { ScreenA() }
+    composable(
+        ActivityRoutes.B_ROUTE + "/{id}",
+        arguments = listOf(navArgument("id") { type = NavType.IntType })
+    ){
+        ScreenB ( it.arguments?.getInt("id")
+    }
+}
+
+ScreenA(){
+    var id = 0;
+    Text(
+        "MOVE",
+        Modifier.clickable { navController.navigate("user/${++id}") })
+}
+ScreenB(id: Int){}
 ```
-Некоторые действия порождают запуск иных деятельностей, через механизм "явных" намерений (intent), в которых указывается требуемый компонент. В представленном ниже примере, метод finish() закрывает деятельность, с которой пользователь уходит:
+Или после подключения плагина сериализации в форме классов с аннотацией kotlinx.serialization.Serializable, описывающих как маршрут перехода, так и требуемые аргументы. Такие классы можно объединять в "запечатанные" классы:
 ```
-val intent = Intent(this, AnotherActivity::class.java)
-startActivity(intent)
-finish()
+sealed class ActivityRoutes {
+    @Serializable object ScreenA
+    @Serializable data class ScreenB (val param: Any? = null)
+}
 ```
-Некоторые действия порождают запуск иных деятельностей для предоставления дополнительных данных. В этом случае "порождающая" деятельность уходит из поля видимости, но не завершается, а ждет ответа от "порождаемой" деятельности:
+При этом для маршрутов без параметров стоит создавать единственный экземпляр или синглтон (object) в противном случае требуется создание data-класса.
 ```
-val intent = Intent(this, AnotherActivity::class.java)
-resultLauncher.launch(intent)
+NavHost ( rememberNavController(), startDestination = ActivityRoutes.ScreenA() ) {
+    composable<ActivityRoutes.ScreenA> { ScreenA() }
+    composable<ActivityRoutes.ScreenB> { ScreenB() }
+}
+
+ScreenA(){
+    var id = 0;
+    Text(
+        "MOVE",
+        Modifier.clickable { navController.navigate(ActivityRoutes.ScreenB(++id)) })
+}
+ScreenB(id: Int){}
 ```
-Затем необходимо прочитать данные из объекта Bundle, прикрепленного в возвращаемом намерении (Intent), сохраненных в виде пар "ключ-значение". "Порождаемая" деятельность в свою очередь должна отправить требуемые данные и завершиться:
-```
-val intent = Intent()
-intent.putExtra("KEY", "value")
-setResult(RESULT_OK, intent)
-finish()
-```
+При этом параметры передаются непосредственно внутрь функций компонентов.

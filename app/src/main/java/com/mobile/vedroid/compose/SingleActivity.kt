@@ -1,6 +1,7 @@
 package com.mobile.vedroid.compose
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +13,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,33 +40,37 @@ class SingleActivity : ComponentActivity() {
                 Box( Modifier
                     .fillMaxSize()
                     .padding(bottom = bottomPadding, top = topPadding) ) {
-                    NavHost ( navController, startDestination = Start() ) {
-                        composable<Start> {
-                            backStackEntry -> val account: Start = backStackEntry.toRoute()
+
+                    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+                        Log.d("TAG", "Screen: ON_START")
+                    }
+                    NavHost ( navController, startDestination = SingleActivityRoutes.Start() ) {
+                        composable<SingleActivityRoutes.Start> {
+                            backStackEntry -> val account: SingleActivityRoutes.Start = backStackEntry.toRoute()
                             FragmentStart (
                                 account.name,
                                 account.sex,
-                                returningInClick = { navController.navigate(route = Returning) },
-                                finalClick = { navController.navigate(route = Final) },
-                                settingsClick = { navController.navigate(route = Settings) }
+                                returningInClick = { navController.navigate(route = SingleActivityRoutes.Returning) },
+                                finalClick = { navController.navigate(route = SingleActivityRoutes.Final) },
+                                settingsClick = { navController.navigate(route = SingleActivityRoutes.Settings) }
                             )
                         }
-                        composable <Returning> {
+                        composable <SingleActivityRoutes.Returning> {
                             FragmentReturning (
                                 returningInClick = {
-                                    name, sex -> navController.navigate(route = Start(name, sex))
+                                    name, sex -> navController.navigate(route = SingleActivityRoutes.Start(name, sex))
                                 }
                             )
                         }
-                        composable <Final> {
+                        composable <SingleActivityRoutes.Final> {
                             FragmentFinal ()
                         }
-                        composable <Settings> {
+                        composable <SingleActivityRoutes.Settings> {
                             FragmentSettings (
                                 closeClick = { navController.popBackStack(); },
                                 logOutClick = {
                                     // TODO // LogOut & Return to Start
-                                    navController.navigate(route = Start())
+                                    navController.navigate(route = SingleActivityRoutes.Start())
                                 }
                             )
                         }
@@ -73,15 +81,3 @@ class SingleActivity : ComponentActivity() {
         }
     }
 }
-
-@Serializable
-data class Start (val name: String? = null, val sex: Boolean? = false)
-
-@Serializable
-object Returning
-
-@Serializable
-object Settings
-
-@Serializable
-object Final
