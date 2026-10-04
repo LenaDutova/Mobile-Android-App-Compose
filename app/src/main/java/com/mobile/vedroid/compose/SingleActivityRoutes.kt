@@ -4,14 +4,14 @@ import kotlinx.serialization.Serializable
 
 sealed class SingleActivityRoutes{
     @Serializable
-    data class Start (val name: String? = null, val sex: Boolean? = false)
+    data class Start (val name: String? = null, val sex: Boolean? = false) : SingleActivityRoutes ()
 
     @Serializable
-    object Returning
+    object Returning : SingleActivityRoutes ()
 
     @Serializable
-    object Settings
+    object Settings : SingleActivityRoutes ()
 
     @Serializable
-    object Final
+    object Final : SingleActivityRoutes ()
 }
