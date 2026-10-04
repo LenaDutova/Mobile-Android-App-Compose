@@ -24,9 +24,10 @@ import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 
 @Composable
-fun ItemJoke (isSingle: Boolean = true,
-              setup: String = stringResource(R.string.lorem_ipsum),
-              delivery: String? = null){
+fun ItemJoke (
+    isSingle: Boolean = true,
+    setup: String = stringResource(R.string.lorem_ipsum),
+    delivery: String? = null){
 
     Card(
         shape = RoundedCornerShape(16.dp),

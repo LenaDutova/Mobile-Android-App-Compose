@@ -14,28 +14,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
 import com.mobile.vedroid.compose.ui.compose.FragmentFinal
 import com.mobile.vedroid.compose.ui.compose.FragmentReturning
 import com.mobile.vedroid.compose.ui.compose.FragmentSettings
 import com.mobile.vedroid.compose.ui.compose.FragmentStart
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
-import kotlinx.serialization.Serializable
 
 class SingleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             MobileAndroidAppComposeTheme {
                 val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
                 val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                val navController = rememberNavController()
+                val backStack = rememberNavBackStack(SingleActivityRoutes.Start())
 
                 Box( Modifier
                     .fillMaxSize()
@@ -44,37 +42,56 @@ class SingleActivity : ComponentActivity() {
                     LifecycleEventEffect(Lifecycle.Event.ON_START) {
                         Log.d("TAG", "Screen: ON_START")
                     }
-                    NavHost ( navController, startDestination = SingleActivityRoutes.Start() ) {
-                        composable<SingleActivityRoutes.Start> {
-                            backStackEntry -> val account: SingleActivityRoutes.Start = backStackEntry.toRoute()
-                            FragmentStart (
-                                account.name,
-                                account.sex,
-                                returningInClick = { navController.navigate(route = SingleActivityRoutes.Returning) },
-                                finalClick = { navController.navigate(route = SingleActivityRoutes.Final) },
-                                settingsClick = { navController.navigate(route = SingleActivityRoutes.Settings) }
-                            )
-                        }
-                        composable <SingleActivityRoutes.Returning> {
-                            FragmentReturning (
-                                returningInClick = {
-                                    name, sex -> navController.navigate(route = SingleActivityRoutes.Start(name, sex))
-                                }
-                            )
-                        }
-                        composable <SingleActivityRoutes.Final> {
-                            FragmentFinal ()
-                        }
-                        composable <SingleActivityRoutes.Settings> {
-                            FragmentSettings (
-                                closeClick = { navController.popBackStack(); },
-                                logOutClick = {
-                                    // TODO // LogOut & Return to Start
-                                    navController.navigate(route = SingleActivityRoutes.Start())
-                                }
-                            )
-                        }
-                    }
+
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = {
+                            if (backStack.size > 1) {
+                                backStack.removeAt(backStack.lastIndex)
+                            } else {
+                                finish()
+                            }
+                        },
+                        entryProvider = entryProvider {
+                            entry<SingleActivityRoutes.Start> { route ->
+                                FragmentStart(
+                                    name = route.name,
+                                    sex = route.sex,
+                                    returningInClick = {
+                                        backStack.add(SingleActivityRoutes.Returning)
+                                    },
+                                    finalClick = {
+                                        backStack.add(SingleActivityRoutes.Final)
+                                    },
+                                    settingsClick = {
+                                        backStack.add(SingleActivityRoutes.Settings)
+                                    },
+                                )
+                            }
+
+                            entry<SingleActivityRoutes.Returning> {
+                                FragmentReturning(
+                                    returningInClick = { name, sex ->
+                                        backStack.add(SingleActivityRoutes.Start(name, sex))
+                                    },
+                                )
+                            }
+
+                            entry<SingleActivityRoutes.Final> {
+                                FragmentFinal()
+                            }
+
+                            entry<SingleActivityRoutes.Settings> {
+                                FragmentSettings(
+                                    closeClick = { backStack.removeLastOrNull() },
+                                    logOutClick = {
+                                        backStack.clear()
+                                        backStack.add(SingleActivityRoutes.Start())
+                                    },
+                                )
+                            }
+                        },
+                    )
 
                 }
             }

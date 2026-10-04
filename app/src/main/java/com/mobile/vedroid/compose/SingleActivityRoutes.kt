@@ -1,17 +1,21 @@
 package com.mobile.vedroid.compose
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
-sealed class SingleActivityRoutes{
+sealed interface SingleActivityRoutes : NavKey {
     @Serializable
-    data class Start (val name: String? = null, val sex: Boolean? = false) : SingleActivityRoutes ()
+    data class Start(
+        val name: String? = null,
+        val sex: Boolean = false,
+    ) : SingleActivityRoutes
 
     @Serializable
-    object Returning : SingleActivityRoutes ()
+    data object Returning : SingleActivityRoutes
 
     @Serializable
-    object Settings : SingleActivityRoutes ()
+    data object Settings : SingleActivityRoutes
 
     @Serializable
-    object Final : SingleActivityRoutes ()
+    data object Final : SingleActivityRoutes
 }
