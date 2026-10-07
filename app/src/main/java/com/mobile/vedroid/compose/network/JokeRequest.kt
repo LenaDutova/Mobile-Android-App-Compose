@@ -1,6 +1,5 @@
 package com.mobile.vedroid.compose.network
 
-
 data class JokesRequest (
     val id: Int,
     val type: String,
