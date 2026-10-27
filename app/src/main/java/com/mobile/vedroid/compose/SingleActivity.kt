@@ -1,5 +1,6 @@
 package com.mobile.vedroid.compose
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation3.runtime.entryProvider
@@ -25,22 +27,24 @@ import com.mobile.vedroid.compose.ui.compose.FragmentStart
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 
 class SingleActivity : ComponentActivity() {
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
+        installSplashScreen()
+        enableEdgeToEdge()
         setContent {
             MobileAndroidAppComposeTheme {
-                val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+//                val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+//                val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 val backStack = rememberNavBackStack(SingleActivityRoutes.Start())
 
-                Box( Modifier
-                    .fillMaxSize()
-                    .padding(bottom = bottomPadding, top = topPadding) ) {
+//                  // without Scaffold need add Window paddings
+//                Box( Modifier.fillMaxSize()
+//                    .padding(bottom = bottomPadding, top = topPadding) ) {
 
                     LifecycleEventEffect(Lifecycle.Event.ON_START) {
-                        Log.d("TAG", "Screen: ON_START")
+                        Log.d("VEDROID", "SingleActivity screen: ON_START")
                     }
 
                     NavDisplay(
@@ -93,7 +97,8 @@ class SingleActivity : ComponentActivity() {
                         },
                     )
 
-                }
+//                }
+
             }
         }
     }

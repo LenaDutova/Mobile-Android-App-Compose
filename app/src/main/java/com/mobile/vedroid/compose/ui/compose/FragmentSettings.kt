@@ -7,8 +7,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -44,9 +47,9 @@ import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-public fun FragmentSettings(
-    logOutClick:() -> Unit = { Log.d("FragmentSettings", "click to log out and start screen") },
-    closeClick:() -> Unit = { Log.d("FragmentSettings", "click to start screen") }
+fun FragmentSettings(
+    logOutClick:() -> Unit = { Log.d("VEDROID", "FragmentSettings: click to log out and start screen") },
+    closeClick:() -> Unit = { Log.d("VEDROID", "FragmentSettings: click to start screen") }
 ){
     val context = LocalContext.current
     val options = listOf(
@@ -62,6 +65,7 @@ public fun FragmentSettings(
         bottomBar = {
             Row (
                 modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(
                     16.dp,

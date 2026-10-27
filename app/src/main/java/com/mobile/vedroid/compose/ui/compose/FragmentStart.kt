@@ -8,8 +8,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -36,26 +39,28 @@ import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-public fun FragmentStart (
+fun FragmentStart (
     name: String? = null,
     sex : Boolean? = false,
 
-    returningInClick: () -> Unit = { Log.d("TAG_FragmentStart", "click to returning screen")},
-    finalClick: () -> Unit = { Log.d("TAG_FragmentStart", "click to final screen")},
-    settingsClick:() -> Unit = { Log.d("TAG_FragmentStart", "click to settings screen")}
+    returningInClick: () -> Unit = { Log.d("VEDROID", "FragmentStart: click to returning screen")},
+    finalClick: () -> Unit = { Log.d("VEDROID", "FragmentStart: click to final screen")},
+    settingsClick:() -> Unit = { Log.d("VEDROID", "FragmentStart: click to settings screen")}
 ){
-    Scaffold(
+    Scaffold (
+
         bottomBar = {
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(
                     16.dp,
                     alignment = Alignment.End),
             ) {
                 OutlinedButton (
-                    onClick = returningInClick as () -> Unit,
+                    onClick = returningInClick,
                     border = BorderStroke(
                         ButtonDefaults.outlinedButtonBorder(true).width,
                         MaterialTheme.colorScheme.primary

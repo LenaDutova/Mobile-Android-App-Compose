@@ -23,6 +23,7 @@
 
     <string name="checkbox_language_ru">Always Russian language</string>
 
+    <string name="warning_text_loading">Loading data…</string>
     <string name="warning_text_no_data">No data</string>
     <string name="warning_text_no_internet">No internet connection</string>
 
@@ -34,6 +35,4 @@
     <string name="text_please">Please</string>
     <string name="text_no_name">, enter name</string>
     <string name="text_no_gender">, choose gender</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="title_activity_single">SingleActivity</string>
 </resources>

@@ -2,4 +2,15 @@
 <resources>
 
     <style name="Theme.MobileAndroidAppCompose" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.SplashScreen.MobileAndroidAppCompose" parent="Theme.SplashScreen">
+        <!-- set the splash screen background, animated icon, and animation duration. -->
+
+<!--        <item name="windowSplashScreenBackground">#D4EEFD</item>-->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+<!--        <item name="windowSplashScreenAnimationDuration">200</item> &lt;!&ndash; required for animated icons. &ndash;&gt;-->
+
+        <!-- Set the theme of the Activity that directly follows your splash screen. This is required. -->
+        <item name="postSplashScreenTheme">@style/Theme.MobileAndroidAppCompose</item>
+    </style>
 </resources>

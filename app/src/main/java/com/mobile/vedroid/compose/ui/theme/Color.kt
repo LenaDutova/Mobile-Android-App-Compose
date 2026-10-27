@@ -21,15 +21,18 @@ val Lilac = Color(0xFF86468C)
 val LilacDark = Color(0xFF6B2D72)
 val LilacDarker = Color(0xFF400049)
 
-val BlueDarker = Color(0xff3870B2)
+val BlueDarker = Color(0xff1d4a80)
+val BlueDark = Color(0xff2b568c)
 val Blue = Color(0xff3870B2)
 val BlueLight = Color(0xffbeeaf6)
 
-val BlueDeepDarker = Color(0xff00313a)
+val BlueDeepDarker = Color(0xff00161a)
+val BlueDeepDark = Color(0xff00313a)
 val BlueDeep = Color(0xff234f59)
 val BlueDeepLight = Color(0xffbeeaf6)
 
-val GreenDarker = Color(0xff12512e)
+val GreenDarker = Color(0xff092817)
+val GreenDark = Color(0xff12512e)
 val Green = Color(0xff2e6a44)
 val GreenLight = Color(0xffb1f1c1)
 

@@ -37,8 +37,8 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-public fun FragmentReturning(
-    returningInClick: (String, Boolean) -> Unit = { name, sex -> Log.d("TAG_FragmentStart", "click from returning screen")}
+fun FragmentReturning(
+    returningInClick: (String, Boolean) -> Unit = { name, sex -> Log.d("VEDROID", "FragmentReturning: click from returning screen")}
 ){
     val context = LocalContext.current
     val options = listOf(

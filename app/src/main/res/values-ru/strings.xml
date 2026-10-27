@@ -22,6 +22,7 @@
     <string name="toggle_mode_system">Системный</string>
     <string name="toggle_mode_light">Светлый</string>
 
+    <string name="warning_text_loading">Загрузка данных…</string>
     <string name="warning_text_no_data">Нет данных</string>
     <string name="warning_text_no_internet">Подключение к интернету отсутствует</string>
 

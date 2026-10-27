@@ -1,17 +1,23 @@
 package com.mobile.vedroid.compose.network
 
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface JokeRetrofitAPI {
 
+    // use callback in UI-thread
+    @GET("joke/Programming?amount=10")
+    fun callJokes(): Call<JokesRequest.ApiJokesList>
+
+    // need background thread
     @GET("joke/Programming")
-    fun getJoke(): Call<JokesRequest>
+    suspend fun getJoke(): Response<JokesRequest>
 
     @GET("joke/Programming?amount=10")
-    fun getJokes(): Call<JokesRequest.ApiJokesList>
+    suspend fun getJokes(): Response<JokesRequest.ApiJokesList>
 
-    @GET("joke/Programming?amount={count}}")
-    fun getJokes(@Path("count") count: Int): Call<JokesRequest.ApiJokesList>
+    @GET("joke/Programming")
+    suspend fun getJokes(@Query("amount") count: Int): Response<JokesRequest.ApiJokesList>
 }
