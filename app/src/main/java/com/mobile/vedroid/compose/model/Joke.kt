@@ -1,9 +1,13 @@
 package com.mobile.vedroid.compose.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlin.Int
 import kotlin.String
 
+@Entity(tableName = "jokes")
 data class Joke (
+    @PrimaryKey
     val id: Int,
     val isSingle: Boolean,
     val setup: String,

@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-//    alias(libs.plugins.kotlin.android)  // navigation
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.devtools.ksp)   // add KSP (Kotlin Symbol Processing)
 }
 
 android {
@@ -75,6 +75,11 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // ROOM
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // tests
     testImplementation(libs.junit)

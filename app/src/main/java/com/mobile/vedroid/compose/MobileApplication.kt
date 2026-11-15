@@ -3,6 +3,7 @@ package com.mobile.vedroid.compose
 import android.app.Application
 import android.content.Context
 import com.mobile.vedroid.compose.storage.OfflineJokesRepository
+import com.mobile.vedroid.compose.storage.room.SQLiteStore
 import com.mobile.vedroid.compose.storage.vaults.LocalFilesStore
 
 class MobileApplication : Application() {
@@ -13,7 +14,7 @@ class MobileApplication : Application() {
 
     companion object {
 
-        private const val IS_FILE = true
+        private const val IS_FILE = false
         private var instance : MobileApplication? = null
 
         fun context() : Context {
@@ -21,7 +22,7 @@ class MobileApplication : Application() {
         }
 
         fun jokesRepository() : OfflineJokesRepository {
-            return /* if (IS_FILE) */ LocalFilesStore() /* else SQLiteStore */
+            return if (IS_FILE) LocalFilesStore() else SQLiteStore()
         }
     }
 }
