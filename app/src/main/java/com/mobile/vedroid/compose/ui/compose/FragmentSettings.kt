@@ -30,36 +30,33 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
+import com.mobile.vedroid.compose.ui.theme.AppMode
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun FragmentSettings(
-    logOutClick:() -> Unit = { Log.d("VEDROID", "FragmentSettings: click to log out and start screen") },
-    closeClick:() -> Unit = { Log.d("VEDROID", "FragmentSettings: click to start screen") }
-){
-    val context = LocalContext.current
-    val options = listOf(
-        context.getString(R.string.toggle_mode_dark),
-        context.getString(R.string.toggle_mode_system),
-        context.getString(R.string.toggle_mode_light)
-    )
+    mode : AppMode = AppMode.SYSTEM,
+    isOnlyRu : Boolean = false,
 
-    var language by rememberSaveable { mutableStateOf(false) }
-    var theme by rememberSaveable { mutableIntStateOf (1) }
+    logOutClick : () -> Unit = { Log.d("VEDRO_ID", "FragmentSettings: click to log out and start screen") },
+    closeClick : () -> Unit = { Log.d("VEDRO_ID", "FragmentSettings: click to start screen") },
+
+    modeChange : (AppMode) -> Unit = { Log.d("VEDRO_ID", "FragmentSettings: change theme mode") },
+    languageChange : (Boolean) -> Unit = { Log.d("VEDRO_ID", "FragmentSettings: check always russian") }
+){
+    val options = listOf(
+        stringResource(R.string.toggle_mode_dark),
+        stringResource(R.string.toggle_mode_system),
+        stringResource(R.string.toggle_mode_light)
+    )
 
     Scaffold(
         bottomBar = {
@@ -72,7 +69,9 @@ fun FragmentSettings(
                     alignment = Alignment.End),
             ) {
                 OutlinedButton (
-                    onClick = logOutClick,
+                    onClick = {
+                        logOutClick()
+                    },
                     border = BorderStroke(
                         ButtonDefaults.outlinedButtonBorder(true).width,
                         MaterialTheme.colorScheme.primary
@@ -123,7 +122,6 @@ fun FragmentSettings(
                         ),
                         contentPadding = SegmentedButtonDefaults.ContentPadding,
                         icon = {
-                            // NightsStay
                             when (index){
                                 0 -> Icon (
                                     imageVector = Icons.TwoTone.NightsStay,
@@ -136,10 +134,10 @@ fun FragmentSettings(
                             }
                         },
                         onClick = {
-                            theme = index
-                            // TODO() // save data
+                            val theme = AppMode.entries.getOrNull(index) ?: AppMode.SYSTEM
+                            modeChange(theme)
                         },
-                        selected = index == theme,
+                        selected = index == mode.index
                     ) {
                         Text(label)
                     }
@@ -155,10 +153,9 @@ fun FragmentSettings(
                 }
             ) {
                 Checkbox(
-                    checked = language,
+                    checked = isOnlyRu,
                     onCheckedChange = {
-                        language = it
-                        // TODO() // save data
+                        languageChange(it)
                     }
                 )
                 Text(text = stringResource(R.string.checkbox_language_ru))

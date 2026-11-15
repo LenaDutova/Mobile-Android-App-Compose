@@ -20,8 +20,8 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,9 +31,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mobile.vedroid.compose.MobileApplication
 import com.mobile.vedroid.compose.R
 import com.mobile.vedroid.compose.model.Joke
-import com.mobile.vedroid.compose.model.extensions.parseToJoke
+import com.mobile.vedroid.compose.extensions.parseToJoke
 import com.mobile.vedroid.compose.network.JokesRequest
 import com.mobile.vedroid.compose.network.RetrofitClient
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
@@ -46,7 +47,7 @@ import retrofit2.Response
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun FragmentFinal(){
-    val jokes = rememberSaveable { mutableStateSetOf<Joke>() }
+    val jokes = rememberSaveable { mutableStateListOf<Joke>() }
     var isLoading by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -55,27 +56,41 @@ fun FragmentFinal(){
 
     val showWarning : (Int) -> Unit = { it ->
         coroutineScope.launch {
-            Log.d("VEDROID", "showWarning: id = $it, text ='${context.getString( it)}'")
+            Log.d("VEDRO_ID", "showWarning: id = $it, text ='${context.getString( it)}'")
             snackbarHostState.showSnackbar(message = context.getString( it))
         }
     }
     val loading : (Boolean) -> Unit = { it -> isLoading = it}
-    val loadJoke : (Joke) -> Unit = { it -> jokes.add(it)}
+    val loadJoke : (Joke) -> Boolean = { it ->
+        if (!jokes.contains(it)) {
+            jokes.add(0, it)
+            true
+        } else {
+            Log.d("VEDRO_ID", "loadJoke: duplicate")
+            false
+        }
+    }
     val download : () -> Unit = {
         downloadJokes(coroutineScope, loading, loadJoke, showWarning)
     }
 
     LaunchedEffect(Unit) {
-        download()
+        MobileApplication.jokesRepository().load()
+            .collect { items ->
+                if (items.isEmpty()) download()
+                else items.forEach { it ->
+                    loadJoke(it)
+                }
+            }
     }
     FragmentFinalScreen(jokes, isLoading, download, snackbarHostState)
 }
 
 @Composable
 fun FragmentFinalScreen(
-        jokes: MutableSet<Joke>,
+        jokes: MutableList<Joke>,
         isLoading: Boolean,
-        download : () -> Unit = { Log.d("VEDROID", "FragmentFinalScreen: download...") },
+        download : () -> Unit = { Log.d("VEDRO_ID", "FragmentFinalScreen: download...") },
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ){
 
@@ -127,16 +142,15 @@ fun LoadingIndicator(isLoading: Boolean) {
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.secondary
     )
-//    CircularProgressIndicator(
-//        modifier = Modifier.width(64.dp),
-//        color = MaterialTheme.colorScheme.secondary,
-//        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-//    )
 }
 
 @Composable
-private fun JokeItemsList (jokes: MutableSet<Joke>){
-    LazyColumn(Modifier.fillMaxSize()) {
+private fun JokeItemsList (jokes: MutableList<Joke>){
+//    val listState = rememberLazyListState()
+//    val coroutineScope = rememberCoroutineScope()
+
+    LazyColumn( /*state = listState,*/
+        modifier =  Modifier.fillMaxSize()) {
         jokes.forEach {
             item { ItemJoke(
                 isSingle = it.isSingle,
@@ -144,16 +158,27 @@ private fun JokeItemsList (jokes: MutableSet<Joke>){
                 delivery = it.delivery)
             }
         }
+//        if (!jokes.isEmpty()) {
+//            coroutineScope.launch { listState.scrollToItem(jokes.size - 1) }
+//        }
     }
 }
 
 private fun downloadJokes (
     coroutineScope : CoroutineScope,
-    loading : (Boolean) -> Unit = { it -> Log.d("VEDROID", "downloadJokes: is show loading = $it") },
-    loadJoke : (Joke) -> Unit = { it -> Log.d("VEDROID", "downloadJokes: load new joke $it") },
-    showWarning : (Int) -> Unit = { it -> Log.d("VEDROID", "downloadJokes: warning id = $it") }) {
+    loading : (Boolean) -> Unit = { it -> Log.d("VEDRO_ID", "downloadJokes: is show loading = $it") },
+    loadJoke : (Joke) -> Boolean = { it ->
+        Log.d("VEDRO_ID", "downloadJokes: load new joke $it")
+        false },
+    showWarning : (Int) -> Unit = { it -> Log.d("VEDRO_ID", "downloadJokes: warning id = $it") },
 
-    val isAsynchronous : Boolean = false
+    isAsynchronous : Boolean = false) {
+
+    // if no internet - only show warning
+    if (!RetrofitClient.isOnline(MobileApplication.context())) {
+        showWarning(R.string.warning_text_no_internet)
+        return
+    }
 
     // show loadin indicator
     loading(true)
@@ -163,7 +188,7 @@ private fun downloadJokes (
         // asynchronous from Retrofit with enqueue
         RetrofitClient.apiService.callJokes().enqueue(object : Callback<JokesRequest.ApiJokesList> {
             override fun onFailure(call: Call<JokesRequest.ApiJokesList>, t: Throwable) {
-                t.message?.let { Log.d("VEDROID", "downloadJokes: onFailure, exception = $it") }
+                t.message?.let { Log.e("VEDRO_ID", "downloadJokes: onFailure, exception = $it", t) }
                 showWarning(R.string.warning_text_no_internet)
 
                 // hide loadin indicator
@@ -177,11 +202,14 @@ private fun downloadJokes (
                 if (response.isSuccessful) {
                     val list = response.body()?.jokes as MutableList<JokesRequest>
                     list.forEach {
-                        Log.d("VEDROID", "downloadJokes: isSuccessful $it")
-                        loadJoke(it.parseToJoke())
+                        Log.d("VEDRO_ID", "downloadJokes: isSuccessful $it")
+                        if (loadJoke(it.parseToJoke()))
+                            coroutineScope.launch{
+                                MobileApplication.jokesRepository().save(it.parseToJoke())
+                            }
                     }
                 } else {
-                    Log.d("VEDROID", "downloadJokes: notSuccessful, code = ${response.code()}")
+                    Log.d("VEDRO_ID", "downloadJokes: notSuccessful, code = ${response.code()}")
                 }
 
                 // hide loadin indicator
@@ -196,14 +224,15 @@ private fun downloadJokes (
             }.onSuccess { response ->
                 if (response.isSuccessful) {
                     response.body()?.jokes?.forEach {
-                        Log.d("VEDROID", "downloadJokes: isSuccessful $it")
-                        loadJoke(it.parseToJoke())
+                        Log.d("VEDRO_ID", "downloadJokes: isSuccessful $it")
+                        if (loadJoke(it.parseToJoke()))
+                            MobileApplication.jokesRepository().save(it.parseToJoke())
                     }
                 } else{
-                    Log.d("VEDROID", "downloadJokes: notSuccessful, code = ${response.code()}")
+                    Log.d("VEDRO_ID", "downloadJokes: notSuccessful, code = ${response.code()}")
                 }
             }.onFailure { throwable ->
-                Log.d("VEDROID", "downloadJokes: onFailure, exception = $throwable")
+                Log.e("VEDRO_ID", "downloadJokes: onFailure, exception = $throwable", throwable)
                 showWarning(R.string.warning_text_no_internet)
             }.also {
                 // hide loadin indicator
@@ -226,11 +255,11 @@ private fun downloadJokes (
 @Composable
 private fun PreviewFragmentFinal (){
     val mock = mutableListOf("Java", "Kotlin", "HTML", "CSS", "JavaScript", "SQL", "Python",  "C++", "Assembler", "Pascal", "Prolog", "Lisp", "C#")
-    val jokes = mutableSetOf<Joke>()
+    val jokes = mutableListOf<Joke>()
     mock.forEach { jokes.add(Joke(jokes.size, true, it)) }
 
     MobileAndroidAppComposeTheme (dynamicColor = false) {
-        FragmentFinalScreen(jokes = jokes.toMutableSet(), isLoading =  true)
+        FragmentFinalScreen(jokes = jokes, isLoading =  true)
 //        FragmentFinalScreen(jokes = jokes.toMutableSet(), isLoading = false)
 //        FragmentFinalScreen(jokes = mutableSetOf<JokesRequest>(), isLoading = true)
 //        FragmentFinalScreen(jokes = mutableSetOf<JokesRequest>(), isLoading = false)

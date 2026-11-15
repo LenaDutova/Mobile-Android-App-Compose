@@ -38,8 +38,12 @@ android {
 }
 
 dependencies {
+
     // Kotlin
     implementation(libs.androidx.core.ktx)
+
+    // Android
+//    implementation(libs.androidx.appcompat)
 
     // JetPack Compose & Material design 3
     implementation(platform(libs.androidx.compose.bom))
@@ -49,8 +53,9 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation(libs.androidx.core.splashscreen)
 
     // other UI-libs
     implementation(libs.androidx.compose.material.icons.core)
@@ -67,6 +72,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // tests
     testImplementation(libs.junit)

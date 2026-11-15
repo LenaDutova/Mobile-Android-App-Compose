@@ -1,5 +1,7 @@
 package com.mobile.vedroid.compose.network
 
+import android.content.Context
+import android.net.ConnectivityManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,4 +15,9 @@ object RetrofitClient {
                 .build()
                 .create(JokeRetrofitAPI::class.java)
         }
+
+    fun isOnline(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return connectivityManager.activeNetwork != null
+    }
 }

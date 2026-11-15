@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -35,20 +36,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.mobile.vedroid.compose.R
+import com.mobile.vedroid.compose.model.UserAccount
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun FragmentStart (
-    name: String? = null,
-    sex : Boolean? = false,
+    user: UserAccount? = null,
 
-    returningInClick: () -> Unit = { Log.d("VEDROID", "FragmentStart: click to returning screen")},
-    finalClick: () -> Unit = { Log.d("VEDROID", "FragmentStart: click to final screen")},
-    settingsClick:() -> Unit = { Log.d("VEDROID", "FragmentStart: click to settings screen")}
+    returningInClick: () -> Unit = { Log.d("VEDRO_ID", "FragmentStart: click to returning screen")},
+    finalClick: () -> Unit = { Log.d("VEDRO_ID", "FragmentStart: click to final screen")},
+    settingsClick:() -> Unit = { Log.d("VEDRO_ID", "FragmentStart: click to settings screen")}
 ){
     Scaffold (
-
         bottomBar = {
             Row (
                 modifier = Modifier
@@ -118,17 +118,17 @@ fun FragmentStart (
 
             Text (
                 text = buildString {
-                    if (name.isNullOrBlank()) append(stringResource(R.string.text_greeting_anonymous))
+                    if (user == null) append(stringResource(R.string.text_greeting_anonymous))
                     else {
                         append(stringResource(R.string.text_greeting))
                         append(" ")
-                        if (sex!!){
+                        if (user.gender){
                             append(stringResource(R.string.text_mr))
                         } else {
                             append(stringResource(R.string.text_mrs))
                         }
                         append(" ")
-                        append(name)
+                        append(user.name)
                     }
                 },
                 style = MaterialTheme.typography.titleLarge,
@@ -157,8 +157,8 @@ fun FragmentStart (
 @Composable
 private fun PreviewFragmentStart(){
     MobileAndroidAppComposeTheme (dynamicColor = false) {
-        FragmentStart()
-//        FragmentStart(Account("Anna", false))
-//        FragmentStart(Account("Bob", true))
+//        FragmentStart()
+//        FragmentStart(UserAccount("Anna", false))
+        FragmentStart(UserAccount("Bob", true))
     }
 }

@@ -1,154 +1,103 @@
-# Работа с сетью на базе клиента Retrofit
-- для входа, регистрации, отображения данных пользователю и настройки интерфейса
+# Хранение данных во внутренних хранилищах мобильного приложения
+В зависимости от объемов данных и частоты их обновлений следует выбирать из нескольких вариантов способов хранения информации:
+- Малые данные (например, данные авторизации, настройки приложения и пр.) в SharedPreferences или DataStore (несвязанные разнотипные параметры в Preference DataStore, или логически объединяемые (объекты) в Proto DataStore). Все эти данные окажутся в защищенном внутреннем хранилище вашего приложения;
+- Средние данные (скачиваемые или создаваемые файлы, например фотогорафии) можно расположить как во внутреннем хранилище, так и во внешнем (в этом случае необходимо затребовать или запросить разрешения у пользователя на чтение и запись);
+- Большие данные разумно распологать в базе данных для облегчения поиска. В Android встроена реляционная субд SQLite, для которой разработчики подготовили официально поддерживаемую ORM - ROOM. Но если очень хочется, то можно использовать и не SQL базы данных, например Realm @https://github.com/realm
 
-## Подключение зависимостей
-В build.gradle.kts уровня Модуля требуется добавить зависимость для подключения сетевого клиента актуальной версии:
+## SharedPreferences
+Данные можно сохранить как пары ключа-значения. В качестве значений могут выступать данные основных типов: Boolean, Float, Integer, Long, String. Для того чтобы получить ссылку на экземпляр SharedPreferences потребуется контекст объекта, обладающего жизненным циклом (например, деятельность, фрагмент, или само приложение):
 ```
-dependencies {
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+sp = MobileApplication.mobileApplicationContext().getSharedPreferences("SP", Context.MODE_PRIVATE);
+```
+При таком способе обращения файл "SP" будет виден всем деятельностям внутри данного приложения, но не чужим.
+
+Данные из SharedPreferences читаются с указанием соответствующего значению типа данных (например, getString) по имени ключа сохранения (KEY). В запрос также передается значение по умолчанию, которое будет возвращено, при ошибках прочтения (если не сохраняли ранее):
+```
+value = sp.get[Type]("KEY", defaultValueIfNotSaved);
+```
+
+Сохранение требует создание специального объекта - SharedPreferences.Editor, который накапливает все требуемые изменения (для пар ключей и их значений) и отправляет их единой транзакцией. В языке Kotlin эта логика скрывается за функцией-расширением SharedPreferences.edit():
+```
+sp.edit { put[Tupe]("KEY", value) }
+```
+
+Также учитывая особенности этого языка, можно объединить обе задачи - получение и сохранение обновленных значений - через переопределение геттера и сеттера переменной:
+```
+var name: String?
+    get () = sp.getString(ACCOUNT_NAME, null)
+    set (value) { sp.edit().putString(ACCOUNT_NAME, value).apply() }
+```
+
+Несмотря на простоту использования, к недостаткам использования SharedPreferences относят синхронность выполнения операций чтения/записи.
+
+## DataStore
+Главное достоинство DataStore заключается в асинхронности операций чтения/записи, достигаемых за счет использования корутин и современных возможностей языка kotlin на платформе Android. Помимо привычного способа хранения пар ключей и значений (Preference DataStore), можно также описывать структуры логически связанных данных (например данные о пользователе, его адресе, контактах и пр.) без ограничения исключительно на основные типы данных, т.к. появляется возможность использовать все сериализуемые данные (Proto DataStore)
+
+Требуется задать зависимость в файле build.gradle:
+```
+implementation("androidx.datastore:datastore-preferences:1.2.0")
+```
+
+Рассмотрим простейший вариант хранения пар ключ-значение. Для начала необходимо запросить Preference DataStore с уникальным имененем:
+```
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "DS")
+```
+По мимо этого следует описать структуру хранимого словаря, т.е. задаем пары из имен ключей и их формата данных по средствам соответствующих методов (stringPreferencesKey, intPreferencesKey, booleanPreferencesKey и пр.):
+```
+companion object {
+    val paramKEY = [type]PreferencesKey("KEY")
 }
 ```
 
-### Настройка POJO-классов для получения или отправки данных по сети
-Retrofit позволяет подключать различные библиотеки для конвератации данных из POJO в формат JSON (или XML). Например, добавим конвертор от Google:
+Для чтения сохраненных данных необходимо запросить значение по ключу, а также указать значение, которое будет возвращено при отсутствии сохранения. Даже в этом случае данные возвращаются не как "статическое" значение, а как объект потока данных Flow.kt:
 ```
-dependencies {
-    implementation("com.google.code.gson:gson:2.14.0")
-}
-```
-
-Как и большинство современных библиотек этот конвертер может соотносить название атрибутов в JSON-формате с именами свойств классов (а также конвертировать camelCase в snake_case и обратно). Но в случае значительного расхождения имен, можно воспользоваться аннотацией @SerializedName:
-```
-import com.google.gson.annotations.SerializedName
-data class Joke ( 
-    @SerializedName ("identification") val id: Int, 
-    val joke: String)
-```
-
-### Настройка интерфейса для сетевого клиента
-Retrofit требует задать контракт на все методы сетевого обмена, указав в аннотациях направление передачи данных. В аннотациях (как @GET, так и @POST) указывается URL пути обращения (можно полностью, включая HTTP протокол, но обычно имя хоста отделяют). 
-
-Можно добавить заголовок запроса с помощью аннотации @Headers, а такж параметры запроса. Последние встраиваются с помощью @Path и учитывают тип передаваемых данных: 
-```
-interface JokeRetrofitAPI {
-    @GET("joke/Programming")
-    fun getJoke(): Call<Joke>
-
-    @GET("joke/Programming?amount={count}}")
-    fun getJokes(@Path("count") count: Int): Call<List<Joke>>
-}
-```
-Обертка Call над возвращаемыми типами данных, служит для возможности создания обратных вызовов (Callback).
-
-### Создание и использование сетевого клиента
-После настройки инфраструктуры следует создать единственный сетевой клиент в приложении, указав имя хоста, используемый конвертер (и если требуется перечислив имена сериализуемых классов), под описанный ранее контракт (интерфейс):
-```
-api = Retrofit.Builder()
-    .baseUrl("HTTP://BASE_URL/")
-    .addConverterFactory(GsonConverterFactory.create())
-    .build()
-    .create(JokeRetrofitAPI::class.java)    
-```
-
-С помощью созданного клиента можно отправлять запросы на сервер, как в синхронном режиме (execute), так и в асинхронном (enqueue). Для использования метода execute() требуется описать два обратных вызова (в случае успешного исполнения и в случае ошибки), которые будут произведены в главном потоке по завершению запроса в сеть:
-```
-api.getJokes().enqueue(object: Callback<List<Joke>> {
-    override fun onFailure(call: Call<List<Joke>>, throwable: Throwable) {
-       Log.d("TAG", throwable.message)
+fun load(): Flow<?> = dataStore.data.map { preferences ->
+        preferences[KEY] ?: defaultValueIfNotSaved
     }
+```
 
-    override fun onResponse(call: Call<List<Joke>>, response: Response<List<Joke>>) {
-        if (response.isSuccessful){
-            val list = response.body() as MutableList<Joke>
-            list.forEach { Log.d("TAG", it.toString()) }
-        } else {
-            Log.d("TAG", response.code())
+И запросы таких данных необходимо производить внутри корутин, подхватывая данные из потока:
+```
+lifecycleScope.launch () {
+    load().first()
+}
+```
+
+Даже разовая операция сохранения также должна производится внутри корутины, из-за чего подобный метод должен объявляться с модификатором suspend:
+```
+suspend fun save (value: [Type]) {
+    dataStore.updateData {
+        it.toMutablePreferences().also { preferences ->
+            preferences["KEY"] = value
         }
     }
 }
 ```
 
-При использовании метода execute(), его потребуется самостоятельно вызвать в фоновом потоке, например, с помощью корутины, также в этом случае в интерфейса должно присутствовать ключевое слово suspend:
+## Файлы
+Файлы можно располагать как во внутренней памяти приложения (аналогично SharedPreferences и DataStore) так и во внешней (например на SD-карте). В последнем случае, данные будут доступны не только вашему приложению, но и другим, что облегчит работу пользователя с информацией (особенно при хранении файлов в соответствующих дирректориях - документы, загрузки, фото и пр.).
+
+Для внешнего хранилища необходимо затребовать разрешения в файле AndroidManifest.xml:
 ```
-// suspend fun getJokes(@Path("count") count: Int): Response<List<Joke>>
-lifecycleScope.launch {
-    runCatching {
-        withContext(Dispatchers.IO){
-            api.getJokes().body()
-        }
-    }.onSuccess { jokes ->
-        jokes.forEach { Log.d("TAG", it.toString()) }
-    }.onFailure { throwable ->
-        Log.d("TAG", throwable.message)
-    }
-}
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
 
-Получаемые по сети данные можно как передать в @Composable-функцию как аргумент, но гораздо лучше связать такие параметры с состоянием компонента, для непосредственного обновления данных:
-```
-val jokes = remember { mutableStateListOf<Joke>() }
-val acoount = remember { mutableStateOf("Anonymous") }
-```
+Или для более современных версий SDK возможно запросить их в процессе исполнения приложения.
 
-## Navigation Component, version 3
-
-С данной ветки проекта используется библиотека Navigation 3. В build.gradle.kts уровня Проекта требуется добавить зависимость для подключения плагина
-
+Процесс записи и чтения файлов в мобильной операционной системе отличается только необходимостью запроса контекста приложения. В остальном вам также нужен поток ввода или вывода в соответствии с операцией, данные и путь к файлу. Базовые потоки (FileOutputStream, FileInputStream) умеют работать только с байтами:
 ```
-plugins {
-    alias("org.jetbrains.kotlin.plugin.serialization:2.4.20") apply false
-}
+int i;
+try (FileInputStream fis = MobileApplication.mobileApplicationContext.openFileInput(filename)){
+    while((i=fis.read()) != -1) System.out.print((char)i);
 ```
 
-В build.gradle.kts уровня Модуля требуется добавить зависимость для подключения Navigation Component актуальной версии и плагина для типобезопасных аргументов организуемых маршрутов-переходов:
-``` 
-plugins {
-//    alias(libs.plugins.kotlin.android)  // navigation
-    alias("org.jetbrains.kotlin.plugin.serialization:2.4.20")
-}
-dependencies {
-//    implementation("androidx.navigation:navigation-compose:2.10.2")
-    implementation("androidx.navigation3:navigation3-runtime:1.2.0")
-    implementation("androidx.navigation3:navigation3-ui:1.2.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
-}
+При записи в файл можно указывать различные режимы: для перезаписи файла (Context.MODE_PRIVATE) или его дополнения (Context.MODE_APPEND):
+```
+ try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_APPEND)) {    
+    fos.write("Hello".getBytes());
 ```
 
-### Описание маршрутов (переходов)
-Для построения навигационного графа требуется описать маршруты переходов между экранами (@Composable-функциями).
+В операциях чтения и записи могут возникать ошибки (пути к файлу, формата данных и пр.). Желательно предусмотреть механизма решения наиболее часто возникающих неурядиц.
 
-В качестве параметров, описывающих маршрут выступают объекты, наследуемые от класса androidx.navigation3.runtime.NavKey. Как и в предыдущей версии это могут быть object или data class (если переход предполагает передачу параметров):
-```
-import androidx.navigation3.runtime.NavKey
-import kotlinx.serialization.Serializable
-
-sealed interface SingleActivityRoutes : NavKey {
-
-    @Serializable data object ARoute : SingleActivityRoutes
-    @Serializable data class BRoute (val id: Int) : SingleActivityRoutes
-} 
-```
-В этом случае граф навигации строится не на основании функций NavHost и composable(), а используя NavDisplay, позволяющего более детальную настройку маршрутов и харатера переходов между ними:
-```
-val backStack = rememberNavBackStack(SingleActivityRoutes.ARoute())
-NavDisplay( 
-    backStack = backStack,
-    onBack = {
-        if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
-        else finish()
-    },
-    entryProvider = entryProvider {
-        entry<SingleActivityRoutes.ScreenA> { route -> ScreenA() }
-        entry<SingleActivityRoutes.ScreenB> { route -> ScreenB ( id = route.id) }
-    }
-)
-
-ScreenA(){
-    var id = 0;
-    Text(
-        "MOVE",
-        Modifier.clickable { backStack.add(SingleActivityRoutes.ScreenB(id)) })
-}
-ScreenB(id: Int){}
-```
+Также стоит учесть, что Kotlin добавляет огромное количество функций расширений, которые могут облегчить как чтение (File.readLines(), File.forEachLine()), так и запись данных (loseable.use()). А вызов подобных операций асинхронно (внутри корутин) оставит интерфейс пользователя отзывчивым к его текущих действиях.

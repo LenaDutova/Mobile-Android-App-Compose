@@ -1,4 +1,4 @@
-package com.mobile.vedroid.compose.model.extensions
+package com.mobile.vedroid.compose.extensions
 
 import com.mobile.vedroid.compose.model.Joke
 import com.mobile.vedroid.compose.network.JokesRequest

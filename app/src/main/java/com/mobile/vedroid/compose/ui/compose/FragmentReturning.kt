@@ -32,13 +32,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.mobile.vedroid.compose.R
+import com.mobile.vedroid.compose.model.UserAccount
+import com.mobile.vedroid.compose.storage.AccountRepository
 import com.mobile.vedroid.compose.ui.theme.MobileAndroidAppComposeTheme
 import kotlinx.coroutines.launch
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun FragmentReturning(
-    returningInClick: (String, Boolean) -> Unit = { name, sex -> Log.d("VEDROID", "FragmentReturning: click from returning screen")}
+    returningInClick: (UserAccount) -> Unit = { user -> Log.d("VEDRO_ID", "FragmentReturning: click from returning screen")}
 ){
     val context = LocalContext.current
     val options = listOf(
@@ -49,6 +51,7 @@ fun FragmentReturning(
 
     var name by rememberSaveable { mutableStateOf("") }
     var sex by rememberSaveable { mutableIntStateOf (1) }
+
     val snackbarHostState  = remember { SnackbarHostState() }
     val coroutineScope  = rememberCoroutineScope()
 
@@ -65,8 +68,9 @@ fun FragmentReturning(
                 snackbarHostState.showSnackbar(message)
             }
         } else {
-//            TODO() // Save new account data & Return to Start
-            returningInClick (name, sex == 0)
+            // Return to Start new account
+            val user = UserAccount(name, sex == 0)
+            returningInClick (user)
         }
     }
 
