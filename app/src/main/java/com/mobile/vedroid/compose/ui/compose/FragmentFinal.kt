@@ -67,7 +67,12 @@ fun FragmentFinal(){
             true
         } else {
             Log.d("VEDRO_ID", "loadJoke: duplicate")
-            false
+            if (jokes.get (jokes.indexOf (it).isUpdated (it)) {
+                val position = jokes.indexOf (it)
+                jokes.removeAt (position)
+                jokes.add (position, it)
+                true
+            } else false
         }
     }
     val download : () -> Unit = {
