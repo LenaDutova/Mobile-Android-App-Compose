@@ -13,6 +13,10 @@ data class Joke (
     val setup: String,
     val delivery: String? = null){
 
+    fun isUpdated (other: Joke){
+        return !(isSingle == other.isSingle && setup == other.setup && delivery.equals (other.delivery))
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
