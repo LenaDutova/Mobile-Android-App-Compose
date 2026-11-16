@@ -42,9 +42,6 @@ dependencies {
     // Kotlin
     implementation(libs.androidx.core.ktx)
 
-    // Android
-//    implementation(libs.androidx.appcompat)
-
     // JetPack Compose & Material design 3
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
